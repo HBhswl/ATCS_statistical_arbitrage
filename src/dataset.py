@@ -65,6 +65,7 @@ class Dataset(object):
         assert df.shape[0] > 0, 'The date is wrong!'
 
         df = df.sort_values(by=['code'])
+        df.index = np.arange(df.shape[0])
         return df
     
     def _load_daily_weight(self, date):
@@ -73,6 +74,7 @@ class Dataset(object):
             if date >= unique_dates[i] and date < unique_dates[i + 1]:
                 df = self.index_weight[self.index_weight.Date==unique_dates[i]]
                 df = df.sort_values(by=['code'])
+                df.index = np.arange(df.shape[0])
                 return df
         assert True, 'The date is wrong!'
 
