@@ -51,14 +51,14 @@ class Dataset(object):
             daily_data = daily_data.groupby(by='time', as_index=True).apply(lambda x: x.weighted_price.sum())
             data_partitions.append(daily_data)
         
-        self.index_value = pd.concat(data_partitions, axis=0)
+        self.index_value = pd.concat(data_partitions, axis=0).to_frame(name='value')
+        print(self.index_value.columns)
 
     def _plot_index(self):
         x_major_locator= MultipleLocator(self.index_value.shape[0] // 5)
         ax=plt.gca()
         ax.xaxis.set_major_locator(x_major_locator)
         plt.plot(self.index_value)
-        plt.show()
 
     def _load_daily_stocks(self, date):
         df = self.data[self.data['time'] == date]
