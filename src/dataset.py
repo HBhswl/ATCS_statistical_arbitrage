@@ -75,3 +75,7 @@ class Dataset(object):
                 df = df.sort_values(by=['code'])
                 return df
         assert True, 'The date is wrong!'
+
+    def _load_whole_dates(self):
+        unique_dates = list(self.index_value.index)
+        return unique_dates

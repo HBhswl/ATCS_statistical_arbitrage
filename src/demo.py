@@ -11,3 +11,6 @@ if __name__=='__main__':
 
     df = dataset._load_daily_weight('2010-02-03')
     print(df.head())
+
+    dates = dataset._load_whole_dates()
+    print(dates)
