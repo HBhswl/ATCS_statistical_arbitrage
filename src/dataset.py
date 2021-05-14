@@ -20,12 +20,12 @@ class Dataset(object):
         self.index_value = None
 
     def _load_data_all(self):
-        filenames = sorted(os.listdir(self.data_path))
+        filenames = sorted(os.listdir(self.data_path))[:1000]
         
         # load data 
         dfs = []
         for filename in tqdm(filenames, desc='load_data'):
-            df = pd.read_csv(os.path.join(self.data_path, filename))
+            df = pd.read_csv(os.path.join(self.data_path, filename), index_col=0)
             dfs.append(df)
 
         self.data = pd.concat(dfs, axis=0)
@@ -33,25 +33,24 @@ class Dataset(object):
 
         # load index data
         self.index_weight = pd.read_csv(self.index_list, index_col=0)
-        self.index_weight.rename(columns={'code':'secID', 'effDate':'Date'}, inplace=True)
+        self.index_weight.rename(columns={'effDate':'Date'}, inplace=True)
 
     def _compose_index_daily(self):
         unique_dates = sorted(list(self.index_weight.Date.unique()))
         data_partitions = []
         for i in tqdm(range(len(unique_dates)-1), desc='construct index'):
-            daily_data = self.data[(self.data['tradeDate'] >= unique_dates[i]) & 
-                                    (self.data['tradeDate'] < unique_dates[i+1])]
+            daily_data = self.data[(self.data['time'] >= unique_dates[i]) & 
+                                    (self.data['time'] < unique_dates[i+1])]
             if 0 == daily_data.shape[0]:
                 break
 
             # TODO: Need to fill in the missing data
             daily_data = pd.merge(daily_data, self.index_weight[self.index_weight.Date==unique_dates[i]], how='inner',
-                                 on='secID')
-            daily_data['weight'] = daily_data['weight'] * 0.01
-            daily_data['weighted_price'] = daily_data['closePrice'] * daily_data['weight']
-            daily_data = daily_data.groupby(by='tradeDate', as_index=True).apply(lambda x: x.weighted_price.sum())
+                                 on='code')
+            daily_data['weighted_price'] = daily_data['close'] * daily_data['weight']
+            daily_data = daily_data.groupby(by='time', as_index=True).apply(lambda x: x.weighted_price.sum())
             data_partitions.append(daily_data)
-
+        
         self.index_value = pd.concat(data_partitions, axis=0)
 
     def _plot_index(self):
@@ -60,3 +59,19 @@ class Dataset(object):
         ax.xaxis.set_major_locator(x_major_locator)
         plt.plot(self.index_value)
         plt.show()
+
+    def _load_daily_stocks(self, date):
+        df = self.data[self.data['time'] == date]
+        assert df.shape[0] > 0, 'The date is wrong!'
+
+        df = df.sort_values(by=['code'])
+        return df
+    
+    def _load_daily_weight(self, date):
+        unique_dates = sorted(list(self.index_weight.Date.unique()))
+        for i in range(len(unique_dates) - 1):
+            if date >= unique_dates[i] and date < unique_dates[i + 1]:
+                df = self.index_weight[self.index_weight.Date==unique_dates[i]]
+                df = df.sort_values(by=['code'])
+                return df
+        assert True, 'The date is wrong!'
