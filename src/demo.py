@@ -2,7 +2,8 @@ import matplotlib.pyplot as plt
 
 from dataset import Dataset
 from portfolio import Portfolio
-
+from strategy import Strategy
+from trade import Trade
 
 if __name__=='__main__':
     dataset = Dataset(data_path='daily_jq', index_list='HS300.csv')
@@ -23,5 +24,16 @@ if __name__=='__main__':
     portfolio.build_portfolio()
     # portfolio._plot_value()
 
-    portfolio._plot_diff()
+    # portfolio._plot_diff()
+    # plt.show()
+
+    strategy = Strategy(portfolio.portfolio_value, dataset.index_value)
+    strategy._set_parameters()
+    data = strategy.generate_signals()
+    
+    trader = Trade(data)
+    trader.set_parameters(tax_fee=0.0013)
+    res = trader.backtest()
+    
+    plt.plot(res.profit)
     plt.show()
