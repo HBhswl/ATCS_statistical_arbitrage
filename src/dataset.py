@@ -81,3 +81,10 @@ class Dataset(object):
     def _load_whole_dates(self):
         unique_dates = list(self.index_value.index)
         return unique_dates
+
+    def _load_date_range_stocks(self, begin_date, end_date):
+        df = self.data[(self.data['time'] >= begin_date) & (self.data['time'] <= end_date)]
+        assert df.shape[0] > 0, 'The date is wrong!'
+
+        df.index = np.arange(df.shape[0])
+        return df
