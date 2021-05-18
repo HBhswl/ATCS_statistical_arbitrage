@@ -55,7 +55,7 @@ class RandomPortfolio(Portfolio):
         self.portfolio_value = pd.concat(res_value, axis=0)
         self.portfolio_weight = pd.concat(res_weight, axis=0)
 
-        return self.portfolio_value, self.portfolio_weight
+        return self.portfolio_value
 
     def _plot_value(self):
         x_major_locator= MultipleLocator(self.portfolio_value.shape[0] // 5)

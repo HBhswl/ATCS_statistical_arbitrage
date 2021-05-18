@@ -11,7 +11,7 @@ class Portfolio(object):
         self.portfolio_value = None
         self.portfolio_weight = None
     
-    def build_portfolio(self) -> (pd.DataFrame, pd.DataFrame):
+    def build_portfolio(self):
 
         raise NotImplementedError
 

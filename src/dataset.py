@@ -88,3 +88,10 @@ class Dataset(object):
 
         df.index = np.arange(df.shape[0])
         return df
+
+    def _load_date_range_index(self, begin_date, end_date):
+        df = self.index_value[(self.index_value.index >= begin_date) & (self.index_value.index <= end_date)]
+        assert df.shape[0] > 0, 'The date is wrong!'
+
+        return df
+    
