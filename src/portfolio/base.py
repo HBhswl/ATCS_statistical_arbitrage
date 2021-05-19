@@ -1,6 +1,6 @@
 import pandas as pd
 
-from dataset import Dataset
+from ..dataset import Dataset
 
 class Portfolio(object):
 

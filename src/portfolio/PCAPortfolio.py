@@ -4,15 +4,15 @@ import numpy as np
 from numpy.lib.arraysetops import _intersect1d_dispatcher
 import pandas as pd
 import matplotlib.pyplot as plt
-from matplotlib.pyplot import MultipleLocator, axis
+from matplotlib.pyplot import MultipleLocator, axis, plot
 from pandas.core import frame
 from pandas.core.groupby import grouper
 from tqdm import tqdm
 import random
 from sklearn import linear_model
 
-from dataset import Dataset
-from portfolio.base import Portfolio
+from ..dataset import Dataset
+from ..portfolio.base import Portfolio
 
 
 
@@ -45,8 +45,8 @@ class PCAPortfolio(Portfolio):
             stocks = pd.merge(stocks, indexs, how='inner', left_on='time', right_index=True)
             groups = []
             for _, group in stocks.groupby(by='code', as_index=True): 
-                group['close_return'] = (group['close'].shift(-1) - group['close']) / group['close']
-                group['value_return'] = (group['value'].shift(-1) - group['value']) / group['value']
+                group['close_return'] = (group['close'] - group['close'].shift(1)) / group['close'].shift(1)
+                group['value_return'] = (group['value'] - group['value'].shift(1)) / group['value'].shift(1)
                 group = group.dropna(how='any')
                 groups.append(group)
             stocks = pd.concat(groups, axis=0)
@@ -96,19 +96,32 @@ class PCAPortfolio(Portfolio):
             stocks = pd.concat(groups, axis=0)
             stocks = stocks.sort_index()
             stocks = pd.merge(stocks, weights, how='inner', left_on='code', right_index=True)
+
+            groups = []
+            for _, group in stocks.groupby(by='code', as_index=True):
+                group['portfolio'] = group['close_return'] - group['correlation'] * group['value_return'] - group['shift']
+                group['portfolio'] = group['portfolio'].cumsum()
+                group['portfolio'] = (group['portfolio'] - group['m']) / group['sigma_eq']
+                groups.append(group)
+            stocks = pd.concat(groups, axis=0)
+            stocks = stocks.sort_index() 
             res_value.append(stocks)
 
         portfolio = pd.concat(res_value, axis=0)
         portfolio.index = np.arange(portfolio.shape[0])
-        portfolio['portfolio'] = (portfolio['close_return'] - portfolio['m']) / portfolio['sigma_eq']
+        # portfolio['portfolio'] = (portfolio['close_return'] - portfolio['m']) / portfolio['sigma_eq']
 
         self.portfolio_value = []
         for _, group in portfolio.groupby(by='code', as_index=True):
             self.portfolio_value.append(group)
-        print(self.portfolio_value[0])
+        
+        print(self.portfolio_value[0].head(0))
+        plt.plot(self.portfolio_value[0].portfolio.values)
+        plt.show()
+        
         return self.portfolio_value
 
-    def generate_signals(self, open_thresh=1.25, close_thresh=0.50, frequency=1):
+    def generate_signals(self, open_thresh=1.25, close_thresh=0.75, frequency=1):
         for data in self.portfolio_value:
             data['signal'] = 0
             data.loc[data['portfolio'] <= - open_thresh, 'signal'] = 2

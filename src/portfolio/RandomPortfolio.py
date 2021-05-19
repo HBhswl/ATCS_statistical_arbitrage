@@ -5,8 +5,8 @@ from matplotlib.pyplot import MultipleLocator
 from tqdm import tqdm
 import random
 
-from dataset import Dataset
-from portfolio.base import Portfolio
+from ..dataset import Dataset
+from ..portfolio.base import Portfolio
 
 class RandomPortfolio(Portfolio):
 
