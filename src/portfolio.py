@@ -1,9 +1,10 @@
+import random
+
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 from matplotlib.pyplot import MultipleLocator
 from tqdm import tqdm
-import random
 
 from dataset import Dataset
 
@@ -47,7 +48,7 @@ class Portfolio(object):
 
             weight = self._modify(weight)
 
-            df = pd.merge(stocks, weight, how='inner',on='code')
+            df = pd.merge(stocks, weight, how='inner', on='code')
             df['weighted_price'] = df['close'] * df['weight']
             res_value.append(pd.DataFrame([df['weighted_price'].sum()], index=[date], columns=['value']))
             res_weight.append(weight)
@@ -58,14 +59,14 @@ class Portfolio(object):
         return self.portfolio_value, self.portfolio_weight
 
     def _plot_value(self):
-        x_major_locator= MultipleLocator(self.portfolio_value.shape[0] // 5)
-        ax=plt.gca()
+        x_major_locator = MultipleLocator(self.portfolio_value.shape[0] // 5)
+        ax = plt.gca()
         ax.xaxis.set_major_locator(x_major_locator)
         plt.plot(self.portfolio_value)
-        
+
     def _plot_diff(self):
         diff = self.portfolio_value['value'] - self.dataset.index_value['value']
-        x_major_locator= MultipleLocator(diff.shape[0] // 5)
-        ax=plt.gca()
+        x_major_locator = MultipleLocator(diff.shape[0] // 5)
+        ax = plt.gca()
         ax.xaxis.set_major_locator(x_major_locator)
         plt.plot(diff)
