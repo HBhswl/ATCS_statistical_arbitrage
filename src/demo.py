@@ -2,9 +2,7 @@ import matplotlib.pyplot as plt
 from matplotlib.pyplot import MultipleLocator
 
 from dataset import Dataset
-from portfolio.RandomPortfolio import RandomPortfolio
-from portfolio.PCAPortfolio import PCAPortfolio
-from strategy import Strategy
+from PCAPortfolio import PCAPortfolio
 from trade import Trade
 
 import warnings
