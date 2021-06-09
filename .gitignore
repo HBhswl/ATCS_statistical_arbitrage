@@ -127,4 +127,9 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
-/daily_jq/
+
+daily_jq/
+
+*.zip
+daily.tar.gz
+HS300.csv
